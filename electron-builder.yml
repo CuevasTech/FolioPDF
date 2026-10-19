@@ -30,7 +30,7 @@ extraFiles:
 publish:
   provider: github
   owner: CuevasTech
-  repo: folio
+  repo: FolioPDF
   releaseType: release
 
 extraResources:

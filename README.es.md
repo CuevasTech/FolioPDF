@@ -11,7 +11,7 @@
 Lee, rellena, firma, edita y organiza tus PDF en Windows.<br>
 Gratis, sin anuncios, sin cuentas y sin subir tus documentos a ningún sitio.
 
-### [⬇&nbsp; Descargar Folio para Windows](https://github.com/CuevasTech/folio/releases/latest)
+### [⬇&nbsp; Descargar Folio para Windows](https://github.com/CuevasTech/FolioPDF/releases/latest)
 
 <img src=".github/presupuesto.png" alt="Folio con un presupuesto que calcula solo los importes, el IVA y el total" width="860">
 
@@ -44,7 +44,7 @@ Además, cada PDF se abre en un espacio aislado de Windows, pensado para que un 
 
 ## Instalación
 
-1. Descarga **Folio-Setup** de la [última versión](https://github.com/CuevasTech/folio/releases/latest).
+1. Descarga **Folio-Setup** de la [última versión](https://github.com/CuevasTech/FolioPDF/releases/latest).
 2. Ábrelo y sigue los pasos. Si Windows muestra «Windows protegió su PC», pulsa **Más información** y luego **Ejecutar de todas formas**: lo hace con los programas nuevos que aún no llevan firma digital.
 3. Listo. Cuando haya una versión nueva, Folio te avisará.
 
@@ -52,7 +52,7 @@ Para Windows 10 y 11 de 64 bits.
 
 ## ¿Ideas o algo que no va bien?
 
-Cuéntanoslo desde Folio, en el menú **…** → **Enviar comentarios**, o en [Issues](https://github.com/CuevasTech/folio/issues). Y si Folio te resulta útil, dale una ⭐: así lo encuentra más gente.
+Cuéntanoslo desde Folio, en el menú **…** → **Enviar comentarios**, o en [Issues](https://github.com/CuevasTech/FolioPDF/issues). Y si Folio te resulta útil, dale una ⭐: así lo encuentra más gente.
 
 ## Apoya Folio
 

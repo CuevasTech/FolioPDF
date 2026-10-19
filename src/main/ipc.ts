@@ -20,7 +20,7 @@ import { feedbackAvailable, sendFeedback } from './feedback'
 import { listScanners, scanPages } from './scanner'
 
 /** Código fuente de Folio: con la licencia AGPL, quien recibe la aplicación tiene derecho a él. */
-export const SOURCE_URL = 'https://github.com/CuevasTech/folio'
+export const SOURCE_URL = 'https://github.com/CuevasTech/FolioPDF'
 
 /** Donativos voluntarios: dirección fija aquí, nunca recibida de la interfaz. */
 const SPONSORS_URL = 'https://github.com/sponsors/CuevasTech'

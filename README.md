@@ -11,7 +11,7 @@
 Read, fill in, sign, edit and organize your PDFs on Windows.<br>
 Free, no ads, no accounts, and your documents are never uploaded anywhere.
 
-### [⬇&nbsp; Download Folio for Windows](https://github.com/CuevasTech/folio/releases/latest)
+### [⬇&nbsp; Download Folio for Windows](https://github.com/CuevasTech/FolioPDF/releases/latest)
 
 <img src=".github/presupuesto.png" alt="Folio with a quote that calculates the amounts, the tax and the total by itself" width="860">
 
@@ -44,7 +44,7 @@ On top of that, each PDF is opened in an isolated Windows sandbox, designed so t
 
 ## Installation
 
-1. Download **Folio-Setup** from the [latest version](https://github.com/CuevasTech/folio/releases/latest).
+1. Download **Folio-Setup** from the [latest version](https://github.com/CuevasTech/FolioPDF/releases/latest).
 2. Open it and follow the steps. If Windows shows “Windows protected your PC”, click **More info** and then **Run anyway**: it does this with new programs that don’t have a digital signature yet.
 3. Done. When there’s a new version, Folio will let you know.
 
@@ -52,7 +52,7 @@ For 64-bit Windows 10 and 11.
 
 ## Ideas or something not working?
 
-Tell us from Folio, in the **…** menu → **Send feedback**, or in [Issues](https://github.com/CuevasTech/folio/issues). And if you find Folio useful, give it a ⭐: it helps more people find it.
+Tell us from Folio, in the **…** menu → **Send feedback**, or in [Issues](https://github.com/CuevasTech/FolioPDF/issues). And if you find Folio useful, give it a ⭐: it helps more people find it.
 
 ## Support Folio
 

@@ -5,10 +5,10 @@
   "description": "Folio: visor y editor de PDF todo en uno (formularios, firma, edicion)",
   "private": true,
   "license": "AGPL-3.0-or-later",
-  "homepage": "https://github.com/CuevasTech/folio",
+  "homepage": "https://github.com/CuevasTech/FolioPDF",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/CuevasTech/folio.git"
+    "url": "git+https://github.com/CuevasTech/FolioPDF.git"
   },
   "author": "CuevasTech",
   "main": "./out/main/index.js",
