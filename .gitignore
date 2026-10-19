@@ -1,0 +1,39 @@
+# Dependencias
+node_modules/
+engine/.venv/
+
+# Salidas de compilacion
+out/
+dist/
+dist-engine/
+build-engine/
+*.tsbuildinfo
+# Avisos de terceros: se generan al compilar (npm run notices)
+build/THIRD-PARTY-NOTICES.txt
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.spec.bak
+
+# Recursos descargados en la preparacion (se regeneran con scripts/)
+resources/tessdata/*.traineddata
+
+# Artefactos de pruebas
+test-output/
+*.log
+
+# Secretos y material sensible: nunca deben entrar en el repositorio
+.env
+.env.*
+*.pfx
+*.p12
+*.pem
+*.key
+
+# Sistema y editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

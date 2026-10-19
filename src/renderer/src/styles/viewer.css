@@ -1,0 +1,158 @@
+/* Visor: lienzo con desplazamiento, páginas y sus capas. */
+
+.viewer {
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+  outline: none;
+  overflow-anchor: none;
+}
+.viewer.pan {
+  cursor: grab;
+}
+.viewer.pan.panning {
+  cursor: grabbing;
+}
+.viewer-content {
+  position: relative;
+}
+
+.page {
+  position: absolute;
+  background: #fff;
+  box-shadow: var(--page-shadow);
+  border-radius: 2px;
+  /* Cada página es un contexto propio: sus capas no afectan al resto del diseño. */
+  contain: layout style;
+}
+.page-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 2px;
+}
+/* Recorte nítido de la zona visible cuando el zoom supera lo que se dibuja de la página entera */
+.page-patch {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+}
+
+/* Capa en «unidades de página»: 1 px = 1 punto; se escala entera con el zoom. */
+.page-units {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+}
+.layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.layer > * {
+  pointer-events: auto;
+}
+
+.text-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  line-height: 1;
+  color: transparent;
+  user-select: text;
+  cursor: text;
+  font-family: sans-serif;
+  /* El texto del navegador solo sirve para seleccionar: no debe verse ni suavizarse */
+  text-rendering: geometricPrecision;
+  forced-color-adjust: none;
+}
+.text-layer span {
+  position: absolute;
+  white-space: pre;
+  transform-origin: 0 0;
+  cursor: text;
+}
+.text-layer br {
+  user-select: none;
+}
+.text-layer ::selection {
+  background: var(--selection);
+  color: transparent;
+}
+.viewer.pan .text-layer,
+.viewer.pan .text-layer span {
+  cursor: inherit;
+  user-select: none;
+}
+.viewer.no-text .text-layer {
+  pointer-events: none;
+  user-select: none;
+}
+
+.hit {
+  position: absolute;
+  border-radius: 2px;
+  background: var(--hit);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+.hit.current {
+  background: var(--hit-current);
+  box-shadow: 0 0 0 1.5px rgba(234, 108, 0, 0.9);
+}
+
+.link {
+  position: absolute;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease);
+}
+.link:hover {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+/* Menú que aparece al seleccionar texto */
+.selection-bar {
+  position: fixed;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  padding: 4px;
+  border-radius: 10px;
+  color: var(--text-inverse);
+  background: var(--bg-inverse);
+  box-shadow: var(--shadow-lg);
+  animation: pop var(--dur) var(--ease);
+}
+.selection-bar button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 9px;
+  border-radius: 7px;
+  font-size: 12.5px;
+  font-weight: 550;
+  color: inherit;
+}
+.selection-bar button:hover {
+  background: color-mix(in srgb, currentColor 16%, transparent);
+}
+.selection-bar .swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+}
+
+.page-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}

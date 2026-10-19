@@ -1,0 +1,49 @@
+{
+  "name": "folio",
+  "productName": "Folio",
+  "version": "0.5.0",
+  "description": "Folio: visor y editor de PDF todo en uno (formularios, firma, edicion)",
+  "private": true,
+  "license": "AGPL-3.0-or-later",
+  "homepage": "https://github.com/CuevasTech/folio",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CuevasTech/folio.git"
+  },
+  "author": "CuevasTech",
+  "main": "./out/main/index.js",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "start": "electron-vite preview",
+    "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
+    "electron:install": "node node_modules/electron/install.js",
+    "engine:build": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-engine.ps1",
+    "notices": "engine\\.venv\\Scripts\\python.exe scripts/third_party_notices.py",
+    "dist": "npm run build && npm run engine:build && npm run notices && electron-builder --win nsis --publish never"
+  },
+  "devDependencies": {
+    "@fontsource-variable/inter": "5.3.0",
+    "@types/node": "24.19.0",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "5.2.0",
+    "electron": "44.5.1",
+    "electron-builder": "26.15.3",
+    "electron-vite": "5.0.0",
+    "lucide-react": "1.49.0",
+    "playwright-core": "1.63.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "typescript": "7.0.2",
+    "vite": "7.3.6",
+    "zod": "4.6.5",
+    "zustand": "5.0.15"
+  },
+  "dependencies": {
+    "electron-updater": "6.8.10"
+  }
+}

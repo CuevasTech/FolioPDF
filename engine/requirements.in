@@ -1,0 +1,26 @@
+# Dependencias de ejecucion del motor de Folio.
+# Este archivo es la lista "humana"; requirements.txt se genera a partir de el
+# con hashes (pip-compile --generate-hashes) y es el que se instala.
+pymupdf
+pillow
+pydantic
+
+# Firma digital (PAdES) y validacion.
+pyhanko
+pyhanko-certvalidator
+# El modulo de firma las importa directamente; se declaran para que una
+# actualizacion de pyHanko no las cambie sin que se note.
+cryptography
+asn1crypto
+aiohttp
+yarl
+certifi
+
+# Digitalizar: buscar el papel en las fotos (scanworker.py, en un proceso aparte).
+numpy
+opencv-python-headless
+
+# Exportacion a Word. Su autor ya no la mantiene de forma activa: si se quita
+# esta linea, la aplicacion sigue funcionando y esa unica funcion aparece como
+# no disponible.
+pdf2docx

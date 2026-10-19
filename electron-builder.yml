@@ -1,0 +1,98 @@
+appId: com.cuevastech.folio
+productName: Folio
+copyright: Copyright © 2026 CuevasTech · AGPL-3.0-or-later
+
+directories:
+  output: dist
+  buildResources: build
+
+# Solo se empaqueta el código compilado; las dependencias de desarrollo no viajan.
+files:
+  - out/**/*
+  - package.json
+
+asar: true
+
+# Licencias de los componentes de terceros (scripts/third_party_notices.py), junto a Folio.exe.
+extraFiles:
+  - from: build/THIRD-PARTY-NOTICES.txt
+    to: THIRD-PARTY-NOTICES.txt
+  # La licencia de Folio (la muestra «Acerca de Folio»).
+  - from: LICENSE
+    to: LICENSE.txt
+
+# Versiones nuevas: se publican en GitHub Releases y la aplicación las
+# encuentra ahí (src/main/updates.ts). Con esto electron-builder
+# genera latest.yml junto al instalador y app-update.yml dentro de la aplicación.
+# Cuando el instalador vaya firmado, añadir en win.signtoolOptions el
+# publisherName: la aplicación exigirá entonces que las versiones nuevas
+# vengan firmadas por el mismo editor.
+publish:
+  provider: github
+  owner: CuevasTech
+  repo: folio
+  releaseType: release
+
+extraResources:
+  - from: dist-engine/folio-engine
+    to: engine
+  - from: resources/tessdata
+    to: assets/tessdata
+    filter:
+      - "*.traineddata"
+
+win:
+  # Firma del instalador. Con el certificado de firma de código conectado,
+  # descomentar y poner su huella y su nombre exacto:
+  # signtoolOptions:
+  #   certificateSha1: HUELLA_DEL_CERTIFICADO
+  #   rfc3161TimeStampServer: http://time.certum.pl
+  #   signingHashAlgorithms: [sha256]
+  #   publisherName: NOMBRE_EXACTO_DEL_CERTIFICADO
+  target:
+    - target: nsis
+      arch: [x64]
+  icon: build/icon.ico
+  fileAssociations:
+    # name es el identificador del tipo de archivo (ProgId) en el registro: propio
+    # de Folio, para no confundirse con el de otro programa. Lo que ve el usuario
+    # es description. build/installer.nsh registra ademas a Folio como aplicacion
+    # con capacidades, para poder elegirlo como programa predeterminado.
+    - ext: pdf
+      name: Folio.PDF
+      description: PDF
+      role: Editor
+
+nsis:
+  # Sin espacios: GitHub cambia los espacios de los archivos subidos y el nombre
+  # dejaria de coincidir con el que anuncia latest.yml. Sin numero de version:
+  # asi la web enlaza siempre a la ultima con una direccion fija
+  # (releases/latest/download/Folio-Setup.exe); cada version sigue teniendo la
+  # suya propia (releases/download/vX.Y.Z/Folio-Setup.exe).
+  artifactName: Folio-Setup.${ext}
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Folio
+  uninstallDisplayName: Folio
+  # Instalador en inglés y español: elige solo el idioma de Windows (si no es
+  # ninguno de los dos, inglés).
+  installerLanguages: [en_US, es_ES]
+  multiLanguageInstaller: true
+  displayLanguageSelector: false
+  language: "1033"
+  include: build/installer.nsh
+
+# Endurecimiento del binario de Electron (OWASP A02:2025 / A08:2025): no puede
+# usarse como intérprete de Node ni depurarse por línea de órdenes, y solo
+# carga el código de la aplicación desde su archivo asar verificado.
+electronFuses:
+  runAsNode: false
+  enableCookieEncryption: true
+  enableNodeOptionsEnvironmentVariable: false
+  enableNodeCliInspectArguments: false
+  enableEmbeddedAsarIntegrityValidation: true
+  onlyLoadAppFromAsar: true
+  grantFileProtocolExtraPrivileges: false

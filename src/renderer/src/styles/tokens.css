@@ -1,0 +1,103 @@
+/* Sistema de diseño de Folio: colores, tipografía, radios y sombras. */
+
+:root {
+  --accent: #4f5bd5;
+
+  --font-ui: 'Inter Variable', 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'Cascadia Mono', Consolas, monospace;
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  --titlebar-h: 40px;
+  --rail-w: 72px;
+  --side-w: 236px;
+  --inspector-w: 288px;
+
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --dur-fast: 120ms;
+  --dur: 180ms;
+}
+
+:root,
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --bg-app: #f1f2f5;
+  --bg-surface: #ffffff;
+  --bg-subtle: #f7f8fa;
+  --bg-hover: rgba(17, 24, 39, 0.055);
+  --bg-active: rgba(17, 24, 39, 0.09);
+  --bg-inverse: #1f2430;
+
+  --border: #e6e8ec;
+  --border-strong: #d3d6dc;
+
+  --text: #14171f;
+  --text-2: #545b69;
+  --text-3: #8a909c;
+  --text-inverse: #f5f6f8;
+
+  --accent-fg: var(--accent);
+  --accent-hover: color-mix(in oklab, var(--accent) 88%, black);
+  --accent-soft: color-mix(in srgb, var(--accent) 11%, transparent);
+  --accent-soft-2: color-mix(in srgb, var(--accent) 20%, transparent);
+  --accent-contrast: #ffffff;
+
+  --danger: #d92d3a;
+  --danger-soft: rgba(217, 45, 58, 0.1);
+  --success: #17914f;
+  --warning: #c27803;
+
+  --page-shadow: 0 0 0 1px rgba(17, 24, 39, 0.06), 0 2px 6px rgba(17, 24, 39, 0.06), 0 12px 28px -14px rgba(17, 24, 39, 0.18);
+  --shadow-sm: 0 1px 2px rgba(17, 24, 39, 0.06);
+  --shadow-md: 0 1px 2px rgba(17, 24, 39, 0.05), 0 6px 18px -6px rgba(17, 24, 39, 0.16);
+  --shadow-lg: 0 2px 6px rgba(17, 24, 39, 0.06), 0 18px 44px -12px rgba(17, 24, 39, 0.24);
+  --backdrop: rgba(20, 23, 31, 0.32);
+
+  --selection: color-mix(in srgb, var(--accent) 28%, transparent);
+  --field-tint: rgba(79, 123, 233, 0.13);
+  --hit: rgba(255, 213, 46, 0.5);
+  --hit-current: rgba(255, 138, 30, 0.6);
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg-app: #141518;
+  --bg-surface: #1c1d20;
+  --bg-subtle: #222327;
+  --bg-hover: rgba(255, 255, 255, 0.065);
+  --bg-active: rgba(255, 255, 255, 0.11);
+  --bg-inverse: #ecedf0;
+
+  --border: #2c2e33;
+  --border-strong: #3a3d44;
+
+  --text: #ecedf0;
+  --text-2: #a4a8b3;
+  --text-3: #6f7480;
+  --text-inverse: #16181d;
+
+  --accent-fg: color-mix(in oklab, var(--accent) 62%, white);
+  --accent-hover: color-mix(in oklab, var(--accent) 86%, white);
+  --accent-soft: color-mix(in srgb, var(--accent) 22%, transparent);
+  --accent-soft-2: color-mix(in srgb, var(--accent) 34%, transparent);
+  --accent-contrast: #ffffff;
+
+  --danger: #f0616b;
+  --danger-soft: rgba(240, 97, 107, 0.14);
+  --success: #3fbf7f;
+  --warning: #e0a53a;
+
+  --page-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), 0 10px 30px -12px rgba(0, 0, 0, 0.7);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 22px -6px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 2px 6px rgba(0, 0, 0, 0.4), 0 22px 50px -12px rgba(0, 0, 0, 0.7);
+  --backdrop: rgba(0, 0, 0, 0.52);
+
+  --selection: color-mix(in srgb, var(--accent) 42%, transparent);
+  --field-tint: rgba(110, 150, 255, 0.2);
+}
