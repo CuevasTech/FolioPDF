@@ -1,7 +1,7 @@
 import { FileText, KeyRound, Lock, Palette, Settings2, Signature, Sparkles } from 'lucide-react'
 import { type KeyboardEvent, type ReactNode, useState } from 'react'
 import type { LangSetting } from '@shared/i18n'
-import type { DateStyle, SignLevel, TimestampServer, UpdateStatus } from '@shared/types'
+import type { CloseMany, DateStyle, SignLevel, TimestampServer, UpdateStatus } from '@shared/types'
 import { fmt, L, locale } from '@/i18n'
 import { DATE_STYLES, formatDateStyle } from '@/lib/dates'
 import { TIMESTAMP_SERVERS } from '@/lib/timestamp'
@@ -235,6 +235,7 @@ function SettingsDialog() {
           <>
             <LanguageSettings />
             <DefaultAppSettings />
+            <CloseManySettings />
             <UpdatesSettings />
           </>
         )}
@@ -422,6 +423,25 @@ function DefaultAppSettings() {
           {T.ask}
         </Checkbox>
       )}
+    </Field>
+  )
+}
+
+/** Qué cerrar al cerrar la ventana con varios archivos (lo mismo que «Recordar mi elección» al cerrar). */
+function CloseManySettings() {
+  const closeMany = useApp((s) => s.settings.closeMany)
+  const T = L.dialogs.settings.closeMany
+  return (
+    <Field label={T.label}>
+      <Segmented<CloseMany>
+        value={closeMany}
+        options={[
+          { value: 'ask', label: T.ask },
+          { value: 'all', label: T.all },
+          { value: 'current', label: T.current }
+        ]}
+        onChange={(value) => void updateSettings({ closeMany: value })}
+      />
     </Field>
   )
 }

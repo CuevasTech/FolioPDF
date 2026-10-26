@@ -77,6 +77,12 @@ export const dialogs: typeof source = {
       confirmHint: 'Windows will ask you to confirm it in Settings.',
       ask: 'Suggest it when Folio opens'
     },
+    closeMany: {
+      label: 'When closing with several files open',
+      ask: 'Ask',
+      all: 'Close all',
+      current: 'Current only'
+    },
     updates: {
       label: 'Folio updates',
       check: 'Let me know when Folio opens if a new version is available (nothing is downloaded without asking you)',

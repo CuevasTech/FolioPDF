@@ -1,7 +1,7 @@
 {
   "name": "folio",
   "productName": "Folio",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Folio: visor y editor de PDF todo en uno (formularios, firma, edicion)",
   "private": true,
   "license": "AGPL-3.0-or-later",

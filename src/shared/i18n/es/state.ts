@@ -16,6 +16,14 @@ export const state = {
       title: '¿Guardar los cambios?',
       message: '«{name}» tiene cambios sin guardar.',
       dontSave: 'No guardar'
+    },
+    closeMany: {
+      title: '¿Qué quieres cerrar?',
+      message: 'Tienes {count} archivos abiertos: puedes cerrarlos todos o solo «{name}».',
+      all: 'Cerrar todos',
+      current: 'Solo el actual',
+      remember: 'Recordar mi elección',
+      rememberHint: 'Puedes cambiarla en Ajustes.'
     }
   },
   /** Programa predeterminado para PDF (state/defaultApp.ts). */

@@ -26,16 +26,26 @@ function testState(): DefaultAppStatus | null {
   return value === 'default' || value === 'other' ? value : null
 }
 
-
-/** ¿Abre Windows los PDF con Folio? 'unknown' si no se puede saber (sin empaquetar, por ejemplo). */
-export async function pdfDefaultStatus(): Promise<DefaultAppStatus> {
+async function readStatus(): Promise<DefaultAppStatus> {
   const simulated = testState()
   if (simulated) return simulated
   if (!app.isPackaged || process.platform !== 'win32') return 'unknown'
-  // Windows 11 reciente guarda la elección en UserChoiceLatest\ProgId; antes, en UserChoice.
-  const chosen = (await regQuery(`${CHOICE}\\UserChoiceLatest\\ProgId`, null)) ?? (await regQuery(`${CHOICE}\\UserChoice`, 'ProgId'))
+  // Windows 11 reciente guarda la elección en el valor ProgId de la subclave
+  // UserChoiceLatest\ProgId; antes, en UserChoice.
+  const chosen = (await regQuery(`${CHOICE}\\UserChoiceLatest\\ProgId`, 'ProgId')) ?? (await regQuery(`${CHOICE}\\UserChoice`, 'ProgId'))
   if (chosen === null) return 'unknown'
   return chosen.toLowerCase() === PROG_ID.toLowerCase() ? 'default' : 'other'
+}
+
+let lastStatus: DefaultAppStatus | null = null
+
+/** ¿Abre Windows los PDF con Folio? 'unknown' si no se puede saber (sin empaquetar, por ejemplo). */
+export async function pdfDefaultStatus(): Promise<DefaultAppStatus> {
+  const status = await readStatus()
+  // Al registro solo cuando cambia (se consulta cada vez que la ventana vuelve a primer plano).
+  if (status !== lastStatus) log.info(`predeterminado para PDF: ${status}`)
+  lastStatus = status
+  return status
 }
 
 /** Abre la página de Folio en «Aplicaciones predeterminadas» (o la general, si Windows no la tiene). */

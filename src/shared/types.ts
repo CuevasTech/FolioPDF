@@ -197,6 +197,9 @@ export interface FontFamily {
 
 export type ThemeChoice = 'system' | 'light' | 'dark'
 
+/** Al cerrar la ventana con varios archivos: preguntar, cerrarlos todos o solo el que se está viendo. */
+export type CloseMany = 'ask' | 'all' | 'current'
+
 export interface Settings {
   theme: ThemeChoice
   accent: string
@@ -217,6 +220,8 @@ export interface Settings {
   signLevel: SignLevel
   /** Proponer, al abrir Folio, usarlo como programa predeterminado para los PDF. */
   askDefaultPdf: boolean
+  /** Qué hacer al cerrar la ventana con varios archivos abiertos. */
+  closeMany: CloseMany
   /** Impresora usada la última vez ('' = la predeterminada de Windows). */
   printer: string
   /** Idioma de Folio: 'auto' sigue a Windows. Se aplica al volver a abrir Folio. */

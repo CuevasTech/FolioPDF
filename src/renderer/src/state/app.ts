@@ -126,6 +126,7 @@ export const DEFAULT_SETTINGS: Settings = {
   timestampServer: 'digicert',
   signLevel: 'timestamp',
   askDefaultPdf: true,
+  closeMany: 'ask',
   printer: '',
   language: 'auto',
   aiTier: 'off',

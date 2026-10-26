@@ -16,6 +16,14 @@ export const state: typeof source = {
       title: 'Save changes?',
       message: '“{name}” has unsaved changes.',
       dontSave: 'Don’t save'
+    },
+    closeMany: {
+      title: 'What do you want to close?',
+      message: 'You have {count} files open: you can close all of them or only “{name}”.',
+      all: 'Close all',
+      current: 'Current only',
+      remember: 'Remember my choice',
+      rememberHint: 'You can change it in Settings.'
     }
   },
   defaultApp: {

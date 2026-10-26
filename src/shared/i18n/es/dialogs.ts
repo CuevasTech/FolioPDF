@@ -79,6 +79,12 @@ export const dialogs = {
       confirmHint: 'Windows te pedirá confirmarlo en su Configuración.',
       ask: 'Proponérmelo al abrir Folio'
     },
+    closeMany: {
+      label: 'Al cerrar con varios archivos abiertos',
+      ask: 'Preguntar',
+      all: 'Cerrar todos',
+      current: 'Solo el actual'
+    },
     updates: {
       label: 'Versiones nuevas de Folio',
       check: 'Avisarme al abrir Folio si hay una versión nueva (no se descarga nada sin preguntarte)',

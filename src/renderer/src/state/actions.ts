@@ -268,17 +268,63 @@ export function closeDoc(id: string): Promise<boolean> {
   })
 }
 
+/**
+ * Con varios archivos abiertos, qué cerrar: todos, solo el que se está viendo
+ * o nada. Si el usuario marcó «Recordar mi elección», se usa sin preguntar
+ * (se cambia en Ajustes).
+ */
+function closeManyChoice(): Promise<'all' | 'current' | 'cancel'> {
+  const saved = app().settings.closeMany
+  if (saved !== 'ask') return Promise.resolve(saved)
+  const T = L.state.actions.closeMany
+  const current = getDoc(app().active ?? '')
+  const remember = (option: boolean, choice: 'all' | 'current'): void => {
+    if (option) void updateSettings({ closeMany: choice })
+  }
+  return new Promise((resolve) => {
+    app().openDialog({
+      type: 'confirm',
+      title: T.title,
+      message: fmt(T.message, { count: app().order.length, name: current?.state.name ?? '' }),
+      confirmLabel: T.all,
+      alt: {
+        label: T.current,
+        run: (option) => {
+          remember(option, 'current')
+          resolve('current')
+        }
+      },
+      option: { label: T.remember, hint: T.rememberHint, value: false },
+      onConfirm: (option) => {
+        remember(option, 'all')
+        resolve('all')
+      },
+      onCancel: () => resolve('cancel')
+    })
+  })
+}
+
 let quitting = false
 
 /**
  * Cierra Folio preguntando qué guardar de cada documento; si se cancela en
- * alguno, no se cierra. Con ``install``, en lugar de cerrar sin más se instala
- * la versión nueva ya descargada (y Folio se vuelve a abrir).
+ * alguno, no se cierra. Con varios abiertos, antes pregunta si cerrarlos
+ * todos o solo el actual (y entonces Folio sigue abierto con los demás). Con
+ * ``install``, en lugar de cerrar sin más se instala la versión nueva ya
+ * descargada (y Folio se vuelve a abrir).
  */
 export async function requestQuit(options: { install?: boolean } = {}): Promise<void> {
   if (quitting) return
   quitting = true
   try {
+    if (!options.install && app().order.length > 1) {
+      const choice = await closeManyChoice()
+      if (choice === 'cancel') return
+      if (choice === 'current') {
+        await closeDoc(app().active ?? app().order[0])
+        return
+      }
+    }
     for (const id of [...app().order]) {
       if (!(await closeDoc(id))) return
     }
