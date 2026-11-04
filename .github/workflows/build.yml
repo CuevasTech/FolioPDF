@@ -79,7 +79,8 @@ jobs:
       - name: Engine check
         run: |
           $PSNativeCommandUseErrorActionPreference = $true
-          $extra = if ($env:EMULATED -eq 'true') { @('--expect-emulated') } else { @() }
+          $extra = @()
+          if ($env:EMULATED -eq 'true') { $extra += '--expect-emulated' }
           engine\.venv\Scripts\python.exe scripts\engine-check.py --packaged dist-engine\folio-engine\folio-engine.exe --full --store-cert --models "$env:RUNNER_TEMP\models" --fetch-models @extra
 
       - name: Installer and portable zip (unsigned)
