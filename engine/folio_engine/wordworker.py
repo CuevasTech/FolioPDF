@@ -50,8 +50,9 @@ def main(argv: list[str]) -> int:
 
     # Nada de lo que escriban las bibliotecas debe salir de aqui: sus mensajes
     # citan el nombre del archivo y a veces contenido del documento (A09:2025).
-    sink = open(os.devnull, "w", encoding="utf-8")  # noqa: SIM115 - vive lo que el proceso
-    sys.stdout = sys.stderr = sink
+    from .discard import text_sink
+
+    sys.stdout = sys.stderr = text_sink()
     logging.disable(logging.CRITICAL)
 
     try:
