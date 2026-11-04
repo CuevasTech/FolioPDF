@@ -398,6 +398,9 @@ def check_sandbox_blocks(_engine: Engine, files: Path) -> str:
     base = Path(getattr(sys, "_base_executable", sys.executable)).resolve()
     container = winsandbox.open_container()
     try:
+        # The probe is this machine's Python: the container may read (only read)
+        # its folder, as the broker allows when it runs the engine from source.
+        winsandbox.ensure_read_access(base.parent, container)
         job = winsandbox.Job(memory_limit=None)
         run = container.folder / ("c" * 16)
         run.mkdir(exist_ok=True)
@@ -407,6 +410,7 @@ def check_sandbox_blocks(_engine: Engine, files: Path) -> str:
             child = winsandbox.spawn([str(base), "-I", "-c", probe, str(secret)], cwd=str(run), env=env, container=container, job=job)
             child.stdin.close()
             output = child.stdout.read().decode("ascii", "replace").strip()
+            output = output or child.stderr.read().decode("utf-8", "replace").strip()[-300:]
             child.wait(60)
             child.close()
         finally:
@@ -415,7 +419,8 @@ def check_sandbox_blocks(_engine: Engine, files: Path) -> str:
                 run.rmdir()
     finally:
         container.close()
-    expect(output == "DENIED", f"the sandboxed process read the file ({output})")
+    expect(output in ("DENIED", "READ"), f"the probe did not run in the sandbox ({output[:200]!r})")
+    expect(output == "DENIED", "the sandboxed process read the file")
     return "denied"
 
 
