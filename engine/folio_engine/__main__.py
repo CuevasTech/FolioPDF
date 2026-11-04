@@ -40,9 +40,34 @@ def _claim_stdio():
         msvcrt.setmode(out_fd, os.O_BINARY)
     os.dup2(2, 1)
     sys.stdout = sys.stderr
+    if os.name == "nt":
+        _point_std_output_at_stderr()
     rfile = os.fdopen(in_fd, "rb", buffering=1024 * 1024)
     wfile = os.fdopen(out_fd, "wb", buffering=1024 * 1024)
     return rfile, wfile
+
+
+def _point_std_output_at_stderr() -> None:
+    """La salida estandar de Windows (``GetStdHandle``) pasa a ser la de errores.
+
+    ``os.dup2`` cierra el manejador original del descriptor 1, pero en el motor
+    empaquetado (PyInstaller) Windows seguia dando ese manejador ya cerrado a
+    las bibliotecas nativas que escriben en la salida estandar. Si para
+    entonces el numero se habia reutilizado para otra cosa, escribian en ella:
+    asi fallaba al azar la carga de Vulkan (error 1114) en el proceso de IA. Un
+    manejador colgado es ademas un riesgo de integridad (podria acabar
+    escribiendo en un archivo del usuario), asi que se corrige siempre.
+    """
+    import ctypes
+    import msvcrt
+    from ctypes import wintypes
+
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32.SetStdHandle.argtypes = [wintypes.DWORD, wintypes.HANDLE]
+    kernel32.SetStdHandle.restype = wintypes.BOOL
+    std_output_handle = wintypes.DWORD(-11 & 0xFFFFFFFF)  # STD_OUTPUT_HANDLE
+    if not kernel32.SetStdHandle(std_output_handle, msvcrt.get_osfhandle(1)):
+        raise OSError(ctypes.get_last_error(), "SetStdHandle")
 
 
 def _tidy_container(own_base: Path) -> int:
