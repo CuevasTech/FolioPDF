@@ -74,7 +74,7 @@ You need Node 22.12 or later and Python 3.12 or later. In PowerShell:
 npm ci --ignore-scripts
 npm run electron:install
 py -m venv engine\.venv
-engine\.venv\Scripts\python.exe -m pip install --no-deps --only-binary :all: --require-hashes -r engine\requirements.txt
+engine\.venv\Scripts\python.exe -m pip install --no-deps --only-binary :all: --require-hashes -r engine\requirements.txt -r engine\requirements-nodeps.txt
 engine\.venv\Scripts\python.exe -m pip install --only-binary :all: --require-hashes -r engine\requirements-build.txt
 powershell -File scripts\fetch-tessdata.ps1
 npm run dist

@@ -164,6 +164,10 @@ void app.whenReady().then(async () => {
   setTimeout(() => {
     if (store.settings.checkUpdates) updates?.check(false)
   }, 6000)
+  // Al minuto, sin estorbar el arranque: huella de los modelos de IA instalados.
+  // En pruebas (sin empaquetar) se puede adelantar con FOLIO_TEST_AI_RECHECK_MS.
+  const recheckDelay = !app.isPackaged ? Number(process.env.FOLIO_TEST_AI_RECHECK_MS) : NaN
+  setTimeout(() => void bridge?.recheckAi(), Number.isInteger(recheckDelay) && recheckDelay >= 0 ? recheckDelay : 60_000)
   mainWindow.on('closed', () => {
     mainWindow = null
   })

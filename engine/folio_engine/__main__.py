@@ -11,6 +11,7 @@ Modos (ver broker.py):
 * ``--scan-worker``: busqueda del papel en fotos, en un proceso aparte (scanworker.py).
 * ``--ai-worker``: IA local (modelos de lenguaje y pequenos), en un proceso aparte (aiworker.py).
 * ``--ai-detect``: dice si un texto lleva la marca de agua de la IA de Folio.
+* ``--ai-gpu``: escribe que grafica usaria la IA (proceso aislado de usar y tirar).
 * ``--remove-sandbox``: borra el contenedor (lo usa el desinstalador).
 """
 
@@ -89,6 +90,13 @@ def main(argv: list[str] | None = None) -> int:
         from .aiworker import main as ai_worker
 
         return ai_worker(arguments[1:], rfile, wfile)
+    if arguments[:1] == ["--ai-gpu"]:
+        # Solo dice que grafica usaria la IA y termina. El intermediario lo lanza
+        # aislado, como la IA: los controladores de video (Vulkan) nunca se cargan
+        # en el proceso sin aislar (ver aibroker.AiService.configure).
+        from .aiworker import gpu_main
+
+        return gpu_main()
     if arguments[:1] == ["--ai-detect"]:
         from .aiworker import detect_main
 

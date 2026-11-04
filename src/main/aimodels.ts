@@ -83,6 +83,10 @@ export class AiModels {
   private installed: Installed = { components: {} }
   private abort: (() => void) | null = null
   private busy = false
+  /** Componentes («id/versión») cuya huella ya se volvió a comprobar en esta sesión. */
+  private readonly rechecked = new Set<string>()
+  /** La comprobación en curso: descargar o borrar esperan a que acabe. */
+  private checking: Promise<number> | null = null
 
   constructor(
     userData: string,
@@ -187,8 +191,64 @@ export class AiModels {
     }
   }
 
+  /**
+   * Vuelve a comprobar la huella SHA-256 de los modelos instalados de un nivel,
+   * una vez por sesión. Al descargarlos ya se comprobó; esto detecta un archivo
+   * dañado después (disco, copia a medias), que el tamaño no delata. Lo dañado
+   * sale de la lista de instalados, así que Folio vuelve a ofrecer la descarga;
+   * quien llama reconfigura el motor y después llama a tidy(). Devuelve cuántos
+   * componentes se quitaron.
+   *
+   * Por qué no es una barrera contra un atacante: Folio se instala en la carpeta
+   * del usuario, y quien pudiera cambiar los modelos podría cambiar también el
+   * programa. Contra eso protege el aislamiento del proceso de IA, que es donde
+   * se cargan.
+   */
+  recheck(tier: AiTier): Promise<number> {
+    if (tier === 'off' || this.busy) return Promise.resolve(0)
+    if (this.checking) return this.checking
+    const run = (async () => {
+      let removed = 0
+      for (const id of CATALOG.tiers[tier]) {
+        const component = CATALOG.components[id]
+        const key = `${component.id}/${component.version}`
+        if (this.rechecked.has(key) || !(await this.isCurrent(component))) continue
+        let state: 'ok' | 'damaged' | 'unknown' = 'ok'
+        for (const file of component.files) {
+          state = await checkFile(join(this.componentDir(component), file.name), file)
+          if (state !== 'ok') break
+        }
+        // Si no se pudo leer (por ejemplo, abierto por otro programa), no se
+        // da por dañado: se probará en otra sesión.
+        if (state === 'unknown') continue
+        this.rechecked.add(key)
+        if (state === 'damaged') {
+          delete this.installed.components[component.id]
+          removed += 1
+        }
+      }
+      if (removed) await this.saveManifest()
+      return removed
+    })()
+    this.checking = run.finally(() => {
+      this.checking = null
+    })
+    return this.checking
+  }
+
+  /** Borra lo que ya no está en la lista de instalados (tras recheck, con el motor ya reconfigurado). */
+  async tidy(): Promise<void> {
+    if (this.busy) return
+    try {
+      await this.cleanup()
+    } catch {
+      // Un archivo aún abierto (Windows) se borrará la próxima vez.
+    }
+  }
+
   /** Descarga lo que falte de un nivel. Si ya se está descargando, no hace nada. */
   async install(tier: Exclude<AiTier, 'off'>): Promise<void> {
+    if (this.checking) await this.checking.catch(() => 0)
     if (this.busy) return
     this.busy = true
     try {
@@ -238,6 +298,7 @@ export class AiModels {
   }
 
   async removeAll(): Promise<void> {
+    if (this.checking) await this.checking.catch(() => 0)
     if (this.busy) this.cancel()
     this.installed = { components: {} }
     if (existsSync(this.root)) await rm(this.root, { recursive: true, force: true })
@@ -395,6 +456,22 @@ export class AiError extends Error {
 
 function tierSize(tier: Exclude<AiTier, 'off'>): number {
   return CATALOG.tiers[tier].reduce((sum, id) => sum + CATALOG.components[id].files.reduce((s, f) => s + f.size, 0), 0)
+}
+
+/** «damaged» solo si se pudo leer entero y no es el original; «unknown» si no se pudo leer. */
+async function checkFile(path: string, file: AiFile): Promise<'ok' | 'damaged' | 'unknown'> {
+  let info
+  try {
+    info = await stat(path)
+  } catch {
+    return 'unknown'
+  }
+  if (!info.isFile() || info.size !== file.size) return 'damaged'
+  try {
+    return (await sha256Of(path)) === file.sha256 ? 'ok' : 'damaged'
+  } catch {
+    return 'unknown'
+  }
 }
 
 function sha256Of(path: string): Promise<string> {

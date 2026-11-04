@@ -44,7 +44,7 @@ import pymupdf
 from pydantic import Field, StringConstraints
 from pymupdf import mupdf
 
-from .. import content, redaction, usage
+from .. import brotli_guard, content, redaction, usage
 from ..errors import EngineError, denied, invalid, io_error, not_found
 from ..geometry import Geom
 from ..i18n import _
@@ -840,6 +840,10 @@ def _open_source(path: Path, password: str | None, /, **detail: Any) -> pymupdf.
     if kind != "pdf":
         raise EngineError("invalid_file", _("Este tipo de archivo no es compatible. Usa un PDF o una imagen."), **detail)
     try:
+        brotli_guard.check_file(path)  # antes de que MuPDF lea nada
+    except EngineError as exc:
+        raise EngineError(exc.code, exc.message, **detail) from None
+    try:
         # filetype fijo: el archivo solo se entrega al analizador de PDF, no a
         # los de otros formatos que MuPDF elegiria por la extension (A05:2025).
         doc = pymupdf.open(str(path), filetype="pdf")
@@ -871,6 +875,10 @@ def _open_source(path: Path, password: str | None, /, **detail: Any) -> pymupdf.
                 )
             if not int(doc.authenticate(password)) & 4:
                 raise EngineError("wrong_password", _("Esa no es la contraseña de propietario."), **detail)
+        try:
+            brotli_guard.check_document(doc)
+        except EngineError as exc:
+            raise EngineError(exc.code, exc.message, **detail) from None
         if doc.page_count < 1:
             raise EngineError("invalid_file", _("El PDF no contiene páginas."), **detail)
         _harden(doc)

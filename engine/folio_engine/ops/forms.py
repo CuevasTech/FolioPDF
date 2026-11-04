@@ -688,6 +688,39 @@ def _leave_group(doc: pymupdf.Document, xref: int) -> None:
         doc.xref_set_key(parent, "V", "/Off")
 
 
+def single_object_field(doc: pymupdf.Document, xref: int) -> None:
+    """Deja un campo recien creado en un solo objeto: campo y caja juntos.
+
+    PyMuPDF 2 crea cada campo en dos objetos, un campo padre con el nombre y
+    una caja hija, aunque el nombre no tenga jerarquia (``Page._adjust_widget``).
+    Con esa forma, ``Widget.update()`` ya no cambia el nombre ni las propiedades
+    del campo (solo las escribe si van en el mismo objeto), y rellenarlo
+    despues de firmar deja de contar como «rellenar formulario» al comprobar la
+    firma (pyHanko no justifica el cambio de apariencia en la caja hija). Folio
+    0.5, Acrobat y casi todos los programas crean un campo de una sola caja en
+    un solo objeto: se vuelve a esa forma. Solo se toca un padre de primer
+    nivel cuya unica caja es esta; cualquier otra estructura se deja como esta.
+    """
+    parent = _parent_of(doc, xref)
+    if parent is None or _parent_of(doc, parent) is not None or _kids(doc, parent) != [xref]:
+        return
+    fields, set_fields = _top_fields(doc)
+    if parent not in fields:
+        return
+    for key in doc.xref_get_keys(parent):
+        if key in ("Kids", "Parent"):
+            continue
+        kind, value = doc.xref_get_key(parent, key)
+        if kind == "null":
+            continue
+        # Los textos vuelven como texto: se reescriben como cadena PDF.
+        doc.xref_set_key(xref, key, pymupdf.get_pdf_str(value) if kind == "string" else value)
+    doc.xref_set_key(xref, "Parent", "null")
+    set_fields([xref if field == parent else field for field in fields])
+    # El padre queda sin uso; se descarta al guardar.
+    doc.update_object(parent, "null")
+
+
 def _create(doc: pymupdf.Document, page: pymupdf.Page, geom: Geom, spec: NewField, taken: set[str]) -> int:
     rect = geom.api_rect_u(spec.rect)  # Widget.rect: espacio de las propiedades de PyMuPDF
     if rect.width < 4 or rect.height < 4:
@@ -722,6 +755,7 @@ def _create(doc: pymupdf.Document, page: pymupdf.Page, geom: Geom, spec: NewFiel
     _apply_flags(widget, kind, spec)
     # El identificador del objeto creado lo da la anotacion devuelta, no el Widget.
     xref = page.add_widget(widget).xref
+    single_object_field(doc, xref)
     if spec.align is not None and kind in ("text", "combo"):
         doc.xref_set_key(xref, "Q", str(spec.align))
         fresh = next((w for w in page.widgets() if w.xref == xref), None)

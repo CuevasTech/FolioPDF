@@ -33,7 +33,7 @@ from typing import Any, Callable
 
 import pymupdf
 
-from . import locks
+from . import brotli_guard, locks
 from .errors import EngineError, denied, invalid, io_error, locked, not_found
 from .host import DirectHost, Fetched
 from .i18n import N_, _
@@ -180,6 +180,7 @@ class DocSession:
         return session
 
     def _start(self, first: Path, password: str | None) -> None:
+        brotli_guard.check_file(first)  # antes de que MuPDF lea nada (ver brotli_guard.py)
         try:
             doc = pymupdf.open(str(first))
         except Exception as exc:  # noqa: BLE001 - MuPDF lanza tipos propios
@@ -194,6 +195,7 @@ class DocSession:
                 if not self.auth:
                     raise EngineError("wrong_password", _("La contraseña no es correcta."))
                 self.password = password
+            brotli_guard.check_document(doc)
             count = doc.page_count
         finally:
             doc.close()

@@ -674,6 +674,21 @@ def main(arguments: list[str], rfile: BinaryIO, wfile: BinaryIO) -> int:
     return serve(rfile, wfile, models_root, gpu)
 
 
+def gpu_main() -> int:
+    """``--ai-gpu``: una linea JSON con la grafica que usaria la IA (o null) y fin.
+
+    Lo lanza el intermediario dentro del contenedor aislado: asi buscar la
+    grafica, que carga los controladores de Vulkan, nunca ocurre en un proceso
+    sin aislar (A06:2025: codigo de terceros, aqui el del controlador).
+    """
+    import json as _json
+
+    gpu = pick_gpu()
+    sys.stdout.write(_json.dumps({"gpu": gpu.name if gpu else None}) + "\n")
+    sys.stdout.flush()
+    return 0
+
+
 def detect_main(arguments: list[str]) -> int:
     """``--ai-detect <carpeta de modelos> <archivo.txt>``: dice si un texto lleva la marca de Folio.
 

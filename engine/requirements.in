@@ -1,7 +1,15 @@
 # Dependencias de ejecucion del motor de Folio.
 # Este archivo es la lista "humana"; requirements.txt se genera a partir de el
-# con hashes (pip-compile --generate-hashes) y es el que se instala.
-pymupdf
+# con hashes (pip-compile --generate-hashes, sin tocarlo despues a mano) y se
+# instala junto con requirements-nodeps.txt: los paquetes que van sin sus
+# dependencias (pdf2docx, tokenizers y llama-cpp-python), explicados alli.
+
+# Motor PDF. Fijada en la 1.28.2 a proposito (noviembre de 2026, ver PLAN-1.0.md):
+# la 2.x mueve el texto que queda al censurar (#5201, sin arreglar en la 2.1) y
+# crea los campos de formulario en dos objetos. Su fallo de Brotli
+# (CVE-2026-111497) se frena en el motor: no se abren PDF que lo usen (brotli_guard.py).
+# Pasar a la 2.x (pymupdf-lite) cuando #5201 este arreglado, con todas las pruebas.
+pymupdf==1.28.2
 pillow
 pydantic
 
@@ -20,7 +28,16 @@ certifi
 numpy
 opencv-python-headless
 
-# Exportacion a Word. Su autor ya no la mantiene de forma activa: si se quita
-# esta linea, la aplicacion sigue funcionando y esa unica funcion aparece como
-# no disponible.
-pdf2docx
+# Exportacion a Word con pdf2docx (en requirements-nodeps.txt). Su autor ya no
+# la mantiene de forma activa: si se quita, la aplicacion sigue funcionando y
+# esa unica funcion aparece como no disponible. Estas son las dependencias que
+# si usa (ademas de numpy y opencv, arriba).
+python-docx
+fonttools
+
+# IA local (opcional; los modelos se descargan aparte). llama-cpp-python y
+# tokenizers van en requirements-nodeps.txt; estas son las dependencias que
+# usan, y ONNX Runtime para los modelos pequenos (busqueda, datos personales).
+onnxruntime
+jinja2
+diskcache

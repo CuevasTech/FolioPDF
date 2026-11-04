@@ -18,6 +18,7 @@
 from __future__ import annotations
 
 import ctypes
+import json
 import logging
 import queue
 import re
@@ -37,6 +38,7 @@ IDLE_SECONDS = 300  # sin uso durante este tiempo, el proceso de IA se cierra
 CALL_SECONDS = 180  # tope de una peticion corta (vectores, entidades, aplanar)
 GENERATION_SECONDS = 900  # tope de una respuesta del modelo de lenguaje
 START_SECONDS = 180  # tope para arrancar y cargar la configuracion
+GPU_PROBE_SECONDS = 20  # tope para saber que grafica hay (cargar Vulkan tarda unos segundos)
 MAX_CALLS_PER_OPERATION = 5_000
 MAX_POLL_WAIT = 0.5
 MARGIN = 3 * 1024**3  # memoria del proceso de IA ademas de los modelos (contexto, calculos)
@@ -196,12 +198,7 @@ class AiService:
                 out["ctx"] = ctx
             models[kind] = out
         ok = cpu_ok()
-        gpu_name: str | None = None
-        if gpu and models.get("llm") and ok:
-            from .aiworker import pick_gpu
-
-            found = pick_gpu()
-            gpu_name = found.name if found else None
+        gpu_name = self._detect_gpu() if gpu and models.get("llm") and ok else None
         with self._lock:
             self._close_process()
             self._models = models if ok else {}
@@ -212,6 +209,56 @@ class AiService:
         if models and self._root is not None:
             self._grant_read(self._root)
         return {"gpu": gpu_name, "cpuOk": ok, "kinds": sorted(models)}
+
+    def _detect_gpu(self) -> str | None:
+        """Nombre de la grafica que usaria la IA, o None.
+
+        Buscarla carga los controladores de Vulkan de la tarjeta de video, que
+        son codigo de terceros. Por eso no se hace aqui, en el intermediario
+        (que no esta aislado), sino en un proceso aislado de usar y tirar
+        (``--ai-gpu``), lanzado igual que el de la IA. Si no responde a tiempo
+        o responde algo raro, se usa el procesador.
+        """
+        try:
+            child, job = self._spawn(["--ai-gpu"], 0)
+        except OSError:
+            log.warning("no se pudo lanzar la comprobacion de la grafica")
+            return None
+        lines: list[bytes] = []
+
+        def read() -> None:
+            try:
+                lines.append(child.stdout.readline(4096))
+            except (OSError, ValueError):
+                pass
+
+        def drain() -> None:
+            # Lo que escriba en su salida de errores se descarta (no bloquea).
+            try:
+                while child.stderr.read(4096):
+                    pass
+            except (OSError, ValueError):
+                pass
+
+        reader = threading.Thread(target=read, name="ia-grafica", daemon=True)
+        reader.start()
+        threading.Thread(target=drain, name="ia-grafica-errores", daemon=True).start()
+        reader.join(GPU_PROBE_SECONDS)
+        try:
+            if child.wait(1.0) is None:
+                child.kill()
+                child.wait(5.0)
+        finally:
+            child.close()
+            job.close()
+        try:
+            answer = json.loads(lines[0].decode("utf-8")) if lines else None
+        except ValueError:
+            answer = None
+        name = answer.get("gpu") if isinstance(answer, dict) else None
+        if not isinstance(name, str) or not name.strip():
+            return None
+        return "".join(ch for ch in name if ch.isprintable())[:120] or None
 
     def _check(self, rel: Any) -> Path:
         if self._root is None or not isinstance(rel, str) or not _REL.match(rel) or ".." in rel:

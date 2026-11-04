@@ -21,6 +21,7 @@ CATALOG: dict[str, str] = {
     "Operación cancelada.": "Operation canceled.",
     "Operación no permitida.": "Operation not allowed.",
     "Operación desconocida.": "Unknown operation.",
+    "Este PDF usa un tipo de compresión (Brotli) que Folio todavía no abre, por seguridad.": "This PDF uses a type of compression (Brotli) that Folio doesn’t open yet, for security reasons.",
     "Se produjo un error inesperado al procesar el documento.": "An unexpected error occurred while processing the document.",
     "No hay memoria suficiente para completar la operación.": "There isn’t enough memory to complete the operation.",
     "No se pudo iniciar el motor de documentos.": "Couldn’t start the document engine.",

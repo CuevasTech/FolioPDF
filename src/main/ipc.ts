@@ -223,6 +223,23 @@ export class Bridge {
     this.send('ai:changed')
   }
 
+  /**
+   * Una vez por sesión, al poco de abrir: vuelve a comprobar la huella de los
+   * modelos instalados (AiModels.recheck). Si alguno está dañado, el motor deja
+   * de usarlo (cierra la IA), se borra y la interfaz vuelve a ofrecer la descarga.
+   */
+  async recheckAi(): Promise<void> {
+    try {
+      const removed = await this.ai.recheck(this.store.settings.aiTier)
+      if (!removed) return
+      log.warn(`ia: ${removed} componente(s) no coinciden con su huella; hay que volver a descargarlos`)
+      await this.configureAi()
+      await this.ai.tidy()
+    } catch {
+      log.warn('ia: no se pudieron volver a comprobar los modelos')
+    }
+  }
+
   private async aiStatus(): Promise<AiStatus> {
     return { ...(await this.ai.status(this.store.settings.aiTier)), gpu: this.aiEngine?.gpu ?? null, cpuOk: this.aiEngine?.cpuOk ?? true }
   }
