@@ -22,12 +22,14 @@ import json
 import logging
 import queue
 import re
+import sys
 import threading
 import time
 from pathlib import Path
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
-from . import winsandbox
+if TYPE_CHECKING:  # solo para los tipos: el modulo se importa tambien fuera de Windows
+    from . import winsandbox
 from .errors import EngineError, denied, invalid
 from .i18n import _
 from .protocol import FrameWriter, ProtocolError, read_frame
@@ -65,13 +67,20 @@ def unavailable() -> EngineError:
 
 def cpu_ok() -> bool:
     """Los modelos necesitan AVX2 (procesadores desde 2013 aproximadamente)."""
+    if sys.platform == "win32":
+        try:
+            return bool(ctypes.windll.kernel32.IsProcessorFeaturePresent(40))  # PF_AVX2_INSTRUCTIONS_AVAILABLE
+        except (AttributeError, OSError):
+            return False
+    # Linux: las banderas del procesador. En otros sistemas (y en ARM), aun sin IA.
     try:
-        return bool(ctypes.windll.kernel32.IsProcessorFeaturePresent(40))  # PF_AVX2_INSTRUCTIONS_AVAILABLE
-    except (AttributeError, OSError):
+        with open("/proc/cpuinfo", encoding="ascii", errors="replace") as fh:
+            return any(line.startswith("flags") and "avx2" in line.split() for line in fh)
+    except OSError:
         return False
 
 
-Spawn = Callable[[list[str], int], tuple[winsandbox.Child, winsandbox.Job]]
+Spawn = Callable[[list[str], int], "tuple[winsandbox.Child, winsandbox.Job]"]
 
 
 class _Process:

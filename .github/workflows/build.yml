@@ -1,0 +1,84 @@
+# Builds Folio for Windows x64 on every change to main and every pull request:
+# app (type check and bundle), engine (PyInstaller) and installer (unsigned,
+# not uploaded). Official releases are built, signed and published separately.
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Least privilege: read the code, nothing else. No secrets are used.
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows-x64:
+    runs-on: windows-2025
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      # Actions pinned to an exact commit, not a movable tag (supply chain).
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.14'
+
+      - name: App
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          # Locked versions, without running third-party install scripts.
+          npm ci --ignore-scripts
+          npm run typecheck
+          npm run build
+
+      - name: Engine
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          # Exact versions checked by hash; nothing is built from source.
+          python -m venv engine\.venv
+          engine\.venv\Scripts\python.exe -m pip install --no-deps --only-binary :all: --require-hashes -r engine\requirements.txt -r engine\requirements-nodeps.txt
+          engine\.venv\Scripts\python.exe -m pip install --only-binary :all: --require-hashes -r engine\requirements-build.txt
+          powershell -NoProfile -ExecutionPolicy Bypass -File scripts\fetch-tessdata.ps1
+          npm run engine:build
+          # The packaged engine starts and answers.
+          dist-engine\folio-engine\folio-engine.exe --ai-gpu
+
+      - name: Installer (unsigned)
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          npm run notices
+          npx --no-install electron-builder --win nsis --publish never
+          if (-not (Test-Path dist\Folio-Setup.exe)) { throw 'No installer was built.' }
+
+  # Groundwork for the Linux version: the engine installs from the same locked
+  # versions and loads outside Windows (sandboxing on Linux comes later).
+  linux-engine:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.14'
+      - name: Engine loads on Linux
+        working-directory: engine
+        run: |
+          python -m venv .venv
+          .venv/bin/python -m pip install --no-deps --only-binary :all: --require-hashes -r requirements.txt
+          .venv/bin/python -c "import folio_engine.server, folio_engine.ops, folio_engine.broker, folio_engine.brotli_guard"
+          .venv/bin/python -m folio_engine --ai-gpu

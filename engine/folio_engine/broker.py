@@ -41,7 +41,6 @@ from __future__ import annotations
 
 import base64
 import logging
-import msvcrt
 import os
 import re
 import secrets
@@ -55,7 +54,15 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, BinaryIO, Callable
 
-from . import __version__, i18n, paths, winsandbox
+from . import __version__, i18n, paths
+
+# El aislamiento de este intermediario es el de Windows (AppContainer). En otros
+# sistemas el modulo se puede importar, pero aun no aislar: eso llega con su
+# propio mecanismo (PLAN-1.0.md, fase 4).
+if sys.platform == "win32":
+    import msvcrt
+
+    from . import winsandbox
 from .aibroker import AI_OPS, AiService
 from .errors import Cancelled, EngineError, denied, invalid, io_error
 from .host import CHUNK, SCAN_TIMEOUT, WORD_TIMEOUT, claim_name, same_path, stat_pair
@@ -266,7 +273,7 @@ class Broker:
         (run / "temp").mkdir()
         # "x": se crea nuevo, nunca se abre algo que ya estuviera ahi.
         lock = open(run / winsandbox.RUN_MARKER, "xb")  # noqa: SIM115 - vive lo que la ejecucion
-        msvcrt.locking(lock.fileno(), msvcrt.LK_NBLCK, 1)
+        _lock_marker(lock)
         self._run_lock = lock
         return run
 
@@ -1021,6 +1028,17 @@ def _drain(stream: BinaryIO) -> None:
             pass
     except (OSError, ValueError):
         pass
+
+
+def _lock_marker(fh: BinaryIO) -> None:
+    """Bloquea la marca de la ejecucion mientras dura: asi otra instancia sabe
+    que esta carpeta esta en uso y no la limpia."""
+    if sys.platform == "win32":
+        msvcrt.locking(fh.fileno(), msvcrt.LK_NBLCK, 1)
+    else:
+        import fcntl
+
+        fcntl.flock(fh.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
 
 
 def _wait_ready(child: winsandbox.Child) -> dict[str, Any] | None:
