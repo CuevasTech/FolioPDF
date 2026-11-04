@@ -1,0 +1,14 @@
+Folio PDF - portable version / versión portable
+
+EN
+This file makes Folio keep its settings and data in the FolioData folder next
+to it, instead of your user folder. Folio doesn't register itself in Windows.
+- To update: unzip the new version over this folder. Your settings are kept.
+- To remove Folio: close it and delete this folder.
+
+ES
+Este archivo hace que Folio guarde sus ajustes y datos en la carpeta FolioData,
+a su lado, en vez de en tu carpeta de usuario. Folio no se registra en Windows.
+- Para actualizar: descomprime la versión nueva encima de esta carpeta. Tus
+  ajustes se conservan.
+- Para quitar Folio: ciérralo y borra esta carpeta.

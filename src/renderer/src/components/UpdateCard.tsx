@@ -23,10 +23,11 @@ export function UpdateCard() {
         <Sparkles size={18} className="update-icon" />
         <div className="grow">
           <b>{version ? fmt(L.shell.update.availableVersion, { version }) : L.shell.update.available}</b>
+          {status.portable && <span>{L.shell.update.portableHint}</span>}
           <div className="update-actions">
             <button className="btn sm primary" onClick={() => window.folio.updates.download()}>
               <Download size={14} />
-              {L.shell.update.update}
+              {status.portable ? L.shell.update.downloadPortable : L.shell.update.update}
             </button>
             <button className="btn sm ghost" onClick={postponeUpdate}>
               {L.shell.update.notNow}

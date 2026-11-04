@@ -7,6 +7,7 @@ import { EngineClient, type EngineLaunch } from './engine'
 import { Bridge, isOpenable } from './ipc'
 import { initLang } from './i18n'
 import { initLog, log } from './log'
+import { portableDataDir } from './portable'
 import { PrintService } from './print'
 import { hardenContents, hardenSession, registerAppScheme, serveApp } from './security'
 import { Store } from './store'
@@ -36,8 +37,11 @@ app.setAppUserModelId('com.cuevastech.folio')
 
 // Todos los datos de la aplicación (ajustes, registro y copias de trabajo de los
 // documentos) van a una carpeta local y privada del usuario, no a la itinerante.
-if (!app.commandLine.hasSwitch('user-data-dir') && process.env.LOCALAPPDATA) {
-  app.setPath('userData', join(process.env.LOCALAPPDATA, 'Folio'))
+// En la versión portable, a FolioData, junto a Folio.exe (ver portable.ts).
+if (!app.commandLine.hasSwitch('user-data-dir')) {
+  const portable = portableDataDir()
+  if (portable) app.setPath('userData', portable)
+  else if (process.env.LOCALAPPDATA) app.setPath('userData', join(process.env.LOCALAPPDATA, 'Folio'))
 }
 
 // Una sola instancia por carpeta de datos: los archivos que se abran desde el
@@ -135,7 +139,7 @@ app.on('before-quit', (event) => {
 
 void app.whenReady().then(async () => {
   initLog(join(localBase(), 'logs'))
-  log.info(`Folio ${app.getVersion()} iniciado`)
+  log.info(`Folio ${app.getVersion()} iniciado${portableDataDir() ? ' (portable)' : ''}`)
 
   hardenSession(session.defaultSession)
 

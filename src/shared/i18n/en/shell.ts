@@ -102,6 +102,8 @@ export const shell: typeof source = {
     available: 'A new version of Folio is available',
     availableVersion: 'A new version of Folio is available ({version})',
     update: 'Update',
+    downloadPortable: 'Download',
+    portableHint: 'It downloads in your browser. Unzip it over this folder: your settings are kept.',
     notNow: 'Not now',
     downloading: 'Downloading Folio…',
     downloadingVersion: 'Downloading Folio {version}…',

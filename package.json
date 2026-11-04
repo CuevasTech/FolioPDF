@@ -23,7 +23,7 @@
     "electron:install": "node node_modules/electron/install.js",
     "engine:build": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-engine.ps1",
     "notices": "engine\\.venv\\Scripts\\python.exe scripts/third_party_notices.py",
-    "dist": "npm run build && npm run engine:build && npm run notices && electron-builder --win nsis --publish never"
+    "dist": "npm run build && npm run engine:build && npm run notices && electron-builder --win nsis --publish never && node scripts/make-portable.mjs"
   },
   "devDependencies": {
     "@fontsource-variable/inter": "5.3.0",

@@ -105,6 +105,8 @@ export const shell = {
     available: 'Hay una versión nueva de Folio',
     availableVersion: 'Hay una versión nueva de Folio ({version})',
     update: 'Actualizar',
+    downloadPortable: 'Descargar',
+    portableHint: 'Se descarga en tu navegador. Descomprímela encima de esta carpeta: tus ajustes se conservan.',
     notNow: 'Ahora no',
     downloading: 'Descargando Folio…',
     downloadingVersion: 'Descargando Folio {version}…',

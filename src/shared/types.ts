@@ -268,6 +268,8 @@ export interface UpdateStatus {
   version?: string
   percent?: number
   message?: string
+  /** Versión portable: la nueva se descarga en el navegador (no se instala desde Folio). */
+  portable?: boolean
 }
 
 export interface RecentFile {

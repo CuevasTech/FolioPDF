@@ -1,6 +1,7 @@
 import { app, shell } from 'electron'
 import type { DefaultAppStatus } from '@shared/types'
 import { log } from './log'
+import { isPortable } from './portable'
 import { regQuery } from './registry'
 
 /**
@@ -27,6 +28,9 @@ function testState(): DefaultAppStatus | null {
 }
 
 async function readStatus(): Promise<DefaultAppStatus> {
+  // La versión portable no se registra en Windows: no puede ser la predeterminada
+  // y no se le propone (con 'unknown' la interfaz no pregunta).
+  if (isPortable()) return 'unknown'
   const simulated = testState()
   if (simulated) return simulated
   if (!app.isPackaged || process.platform !== 'win32') return 'unknown'

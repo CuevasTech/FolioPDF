@@ -1,10 +1,11 @@
 import { writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { app, type Session, session } from 'electron'
+import { app, type Session, session, shell } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import type { UpdateStatus } from '@shared/types'
 import { L } from './i18n'
 import { log } from './log'
+import { isPortable } from './portable'
 
 /**
  * Versiones nuevas de Folio, publicadas en GitHub Releases.
@@ -25,6 +26,12 @@ import { log } from './log'
 
 // Partición de red que usa electron-updater (electronHttpExecutor.NET_SESSION_NAME).
 const NET_SESSION = 'electron-updater'
+/**
+ * La versión portable se actualiza descargando el zip nuevo desde el navegador
+ * (el instalador no sirve para una copia sin instalar). Dirección fija: la
+ * última versión publicada en GitHub.
+ */
+const PORTABLE_DOWNLOAD = 'https://github.com/CuevasTech/FolioPDF/releases/latest/download/Folio-Portable.zip'
 const VERSION = /^\d{1,4}\.\d{1,4}\.\d{1,6}(-[0-9A-Za-z.-]{1,30})?$/
 
 /** Peticiones de actualización: solo HTTPS a GitHub (y, sin empaquetar, la dirección de prueba). */
@@ -73,11 +80,12 @@ export class Updates {
   private readonly active: boolean
   private manual = false
   private installing = false
+  private readonly portable = isPortable()
 
   constructor(private readonly notify: (status: UpdateStatus) => void) {
     const feed = testFeed(process.env.FOLIO_TEST_UPDATES)
     this.active = app.isPackaged || feed !== null
-    this.status = { state: this.active ? 'idle' : 'unavailable' }
+    this.status = { state: this.active ? 'idle' : 'unavailable', ...(this.portable ? { portable: true } : {}) }
     if (!this.active) return
 
     hardenUpdateSession(session.fromPartition(NET_SESSION, { cache: false }), feed)
@@ -133,8 +141,8 @@ export class Updates {
   }
 
   private set(status: UpdateStatus): void {
-    this.status = status
-    this.notify(status)
+    this.status = this.portable ? { ...status, portable: true } : status
+    this.notify(this.status)
   }
 
   current(): UpdateStatus {
@@ -151,6 +159,16 @@ export class Updates {
   /** Descarga la versión anunciada: solo después de que el usuario lo pida. */
   download(): void {
     if (!this.active || (this.status.state !== 'available' && this.status.state !== 'error')) return
+    if (this.portable) {
+      // Se descarga en el navegador; Folio no instala nada en una copia portable.
+      if (app.isPackaged) {
+        shell.openExternal(PORTABLE_DOWNLOAD).catch(() => log.warn('actualizaciones: no se pudo abrir el navegador'))
+      } else {
+        log.info('actualizaciones: se abriría la descarga de la versión portable (prueba)')
+      }
+      this.set({ state: 'idle', version: this.status.version })
+      return
+    }
     this.set({ state: 'downloading', version: this.status.version, percent: 0 })
     autoUpdater.downloadUpdate().catch(() => undefined)
   }

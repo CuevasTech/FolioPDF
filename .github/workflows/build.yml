@@ -1,6 +1,6 @@
 # Builds Folio for Windows x64 on every change to main and every pull request:
-# app (type check and bundle), engine (PyInstaller) and installer (unsigned,
-# not uploaded). Official releases are built, signed and published separately.
+# app (type check and bundle), engine (PyInstaller), installer and portable zip
+# (unsigned, not uploaded). Official releases are built, signed and published separately.
 name: Build
 
 on:
@@ -61,7 +61,9 @@ jobs:
           $PSNativeCommandUseErrorActionPreference = $true
           npm run notices
           npx --no-install electron-builder --win nsis --publish never
+          node scripts/make-portable.mjs
           if (-not (Test-Path dist\Folio-Setup.exe)) { throw 'No installer was built.' }
+          if (-not (Test-Path dist\Folio-Portable.zip)) { throw 'No portable zip was built.' }
 
   # Groundwork for the Linux version: the engine installs from the same locked
   # versions and loads outside Windows (sandboxing on Linux comes later).
