@@ -35,6 +35,7 @@ import ctypes.wintypes as wt
 import hashlib
 import msvcrt
 import os
+import platform
 import re
 import shutil
 import stat
@@ -688,12 +689,42 @@ class _POLICY_FLAGS(ctypes.Structure):
     _fields_ = [("Flags", wt.DWORD)]
 
 
+_IMAGE_FILE_MACHINE_ARM64 = 0xAA64
+
+
+def running_emulated() -> bool:
+    """¿Corre este proceso emulado en un Windows ARM (Prism)?
+
+    El motor se compila para x64; en un equipo ARM con Windows 11, Windows lo
+    ejecuta traduciendo su codigo a ARM mientras corre. IsWow64Process2 da la
+    arquitectura nativa del equipo, sin dejarse engañar por la emulacion.
+    """
+    try:
+        fn = _kernel32.IsWow64Process2
+    except AttributeError:  # Windows anterior a 10 1709: no hay ARM con emulacion x64
+        return False
+    fn.argtypes = [wt.HANDLE, ctypes.POINTER(ctypes.c_ushort), ctypes.POINTER(ctypes.c_ushort)]
+    fn.restype = wt.BOOL
+    process_machine, native_machine = ctypes.c_ushort(0), ctypes.c_ushort(0)
+    if not fn(_kernel32.GetCurrentProcess(), ctypes.byref(process_machine), ctypes.byref(native_machine)):
+        return False
+    # Equipo ARM y proceso que no es ARM (x64 o x86): emulado.
+    return native_machine.value == _IMAGE_FILE_MACHINE_ARM64 and platform.machine().upper() != "ARM64"
+
+
 def lock_down_dynamic_code() -> bool:
     """Prohibe a este proceso crear o modificar codigo ejecutable (ACG).
 
     Un atacante que tome el control a traves de un fallo de memoria ya no puede
     escribir codigo propio y ejecutarlo. Es irreversible y debe llamarse
     despues de cargar ctypes (que lo necesita al importarse).
+
+    Emulado en Windows ARM no se activa: el emulador genera codigo ARM mientras
+    el proceso corre, y Microsoft documenta que la emulacion no funciona con
+    esta proteccion. El resto del aislamiento (contenedor, objeto de trabajo,
+    mitigaciones al crearlo) sigue igual. Devuelve False en ese caso.
     """
+    if running_emulated():
+        return False
     policy = _POLICY_FLAGS(1)  # ProhibitDynamicCode
     return bool(_kernel32.SetProcessMitigationPolicy(_PROCESS_DYNAMIC_CODE_POLICY, ctypes.byref(policy), ctypes.sizeof(policy)))

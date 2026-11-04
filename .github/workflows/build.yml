@@ -53,8 +53,8 @@ jobs:
           engine\.venv\Scripts\python.exe -m pip install --only-binary :all: --require-hashes -r engine\requirements-build.txt
           powershell -NoProfile -ExecutionPolicy Bypass -File scripts\fetch-tessdata.ps1
           npm run engine:build
-          # The packaged engine starts and answers.
-          dist-engine\folio-engine\folio-engine.exe --ai-gpu
+          # The packaged engine runs sandboxed and renders a page.
+          engine\.venv\Scripts\python.exe scripts\engine-check.py --packaged dist-engine\folio-engine\folio-engine.exe
 
       - name: Installer (unsigned)
         run: |
@@ -64,6 +64,30 @@ jobs:
           node scripts/make-portable.mjs
           if (-not (Test-Path dist\Folio-Setup.exe)) { throw 'No installer was built.' }
           if (-not (Test-Path dist\Folio-Portable.zip)) { throw 'No portable zip was built.' }
+
+  # Windows on Arm: the x64 engine runs under emulation (Prism). It must stay
+  # sandboxed and work, without the code-generation lock the emulator can't use.
+  windows-arm64-engine:
+    runs-on: windows-11-arm
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.14'
+          architecture: x64
+      - name: Engine under x64 emulation
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          python -m venv engine\.venv
+          engine\.venv\Scripts\python.exe -m pip install --no-deps --only-binary :all: --require-hashes -r engine\requirements.txt
+          engine\.venv\Scripts\python.exe -c "import platform; print('Python', platform.python_version(), platform.machine())"
+          engine\.venv\Scripts\python.exe scripts\engine-check.py --expect-emulated
 
   # Groundwork for the Linux version: the engine installs from the same locked
   # versions and loads outside Windows (sandboxing on Linux comes later).

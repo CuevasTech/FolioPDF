@@ -153,9 +153,13 @@ def main(argv: list[str] | None = None) -> int:
         return run(rfile, wfile, work_root, resources, sandbox=not args.no_sandbox, models=models)
 
     if args.worker:
-        if not locked:
-            log.warning("no se pudo prohibir la generacion de codigo en el motor aislado")
         from . import recovery, winsandbox
+
+        if not locked:
+            if winsandbox.running_emulated():
+                log.info("motor emulado en Windows ARM: sin prohibicion de generar codigo (el emulador la necesita)")
+            else:
+                log.warning("no se pudo prohibir la generacion de codigo en el motor aislado")
 
         # Ejecuciones anteriores que terminaron mal: lo que tenia cambios sin
         # guardar se aparta para ofrecer recuperarlo; el resto se borra.
