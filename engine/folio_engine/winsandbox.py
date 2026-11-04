@@ -35,11 +35,11 @@ import ctypes.wintypes as wt
 import hashlib
 import msvcrt
 import os
-import platform
 import re
 import shutil
 import stat
 import subprocess
+import sys
 import threading
 from dataclasses import dataclass
 from pathlib import Path
@@ -708,8 +708,11 @@ def running_emulated() -> bool:
     process_machine, native_machine = ctypes.c_ushort(0), ctypes.c_ushort(0)
     if not fn(_kernel32.GetCurrentProcess(), ctypes.byref(process_machine), ctypes.byref(native_machine)):
         return False
-    # Equipo ARM y proceso que no es ARM (x64 o x86): emulado.
-    return native_machine.value == _IMAGE_FILE_MACHINE_ARM64 and platform.machine().upper() != "ARM64"
+    # Equipo ARM y proceso que no es ARM (x64 o x86): emulado. La arquitectura del
+    # proceso sale de cómo está compilado este Python (sys.version dice «AMD64» o
+    # «ARM64»), no de platform.machine(): en Windows ARM, esa da «ARM64» también
+    # en un Python x64 emulado si puede consultar WMI (visto en GitHub Actions).
+    return native_machine.value == _IMAGE_FILE_MACHINE_ARM64 and "ARM64" not in sys.version.upper()
 
 
 def lock_down_dynamic_code() -> bool:
