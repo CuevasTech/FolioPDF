@@ -144,6 +144,8 @@ export class Bridge {
   private allowClose = false
   private rendererReady = false
   private waitingFiles: string[] = []
+  /** Si ya se ha dibujado alguna página (se anota una vez en el registro, para las comprobaciones). */
+  private firstRender = false
 
   constructor(
     private readonly engine: EngineClient,
@@ -419,6 +421,12 @@ export class Bridge {
             priority: priority ?? 5,
             ...this.progressFor(callId)
           })
+          if (method === 'page.render' && !this.firstRender) {
+            // Prueba de que la ventana, el proceso principal y el motor funcionan
+            // juntos (lo mira scripts/app-check.ps1). Sin datos del documento.
+            this.firstRender = true
+            log.info('primera página dibujada')
+          }
           return { result: reply.result, binary: reply.binary }
         } finally {
           if (callId !== undefined) this.calls.delete(callId)
