@@ -644,6 +644,36 @@ def detect_watermark(token_ids: list[int], vocab: int) -> float:
     return (hits - expected) / ((n * WATERMARK_GAMMA * (1 - WATERMARK_GAMMA)) ** 0.5)
 
 
+def _import_llama_without_nul() -> None:
+    """Carga llama-cpp-python aunque no se pueda abrir el dispositivo NUL.
+
+    Al importarse abre dos veces ``os.devnull``, donde redirige los mensajes de
+    llama.cpp mientras carga un modelo. En Windows Server 2025 (y en equipos con
+    NUL restringido) un proceso dentro de un AppContainer no puede abrirlo, y la
+    IA no arrancaba. Si NUL falla, esas dos aperturas reciben un archivo
+    temporal de la carpeta del proceso, que Windows borra al cerrarlo; ningun
+    otro ``open`` cambia.
+    """
+    import builtins
+    import tempfile
+
+    real_open = builtins.open
+
+    def open_or_discard(file: Any, *args: Any, **kwargs: Any) -> Any:
+        if isinstance(file, str) and file == os.devnull:
+            try:
+                return real_open(file, *args, **kwargs)
+            except OSError:
+                return tempfile.TemporaryFile("w", encoding="utf-8")
+        return real_open(file, *args, **kwargs)
+
+    builtins.open = open_or_discard
+    try:
+        import llama_cpp  # noqa: F401
+    finally:
+        builtins.open = real_open
+
+
 def main(arguments: list[str], rfile: BinaryIO, wfile: BinaryIO) -> int:
     """``--ai-worker <carpeta de modelos> [--gpu]`` (lo lanza el intermediario)."""
     logging.basicConfig(level=logging.INFO, stream=sys.stderr, format="%(levelname)s %(name)s: %(message)s")
@@ -661,7 +691,7 @@ def main(arguments: list[str], rfile: BinaryIO, wfile: BinaryIO) -> int:
     import numpy  # noqa: F401
     import onnxruntime  # noqa: F401
     import tokenizers  # noqa: F401
-    import llama_cpp  # noqa: F401
+    _import_llama_without_nul()
     from llama_cpp import LogitsProcessorList, llama_chat_format  # noqa: F401
 
     if gpu is None:
