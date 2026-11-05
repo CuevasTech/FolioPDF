@@ -48,7 +48,9 @@ On top of that, each PDF is opened in an isolated Windows sandbox, designed so t
 2. Open it and follow the steps. If Windows shows “Windows protected your PC”, click **More info** and then **Run anyway**: it does this with new programs that don’t have a digital signature yet.
 3. Done. When there’s a new version, Folio will let you know.
 
-For 64-bit Windows 10 and 11.
+**Portable version:** if you’d rather not install anything, download [Folio-Portable.zip](https://github.com/CuevasTech/FolioPDF/releases/latest/download/Folio-Portable.zip), unzip it in any folder and open `Folio.exe`. It keeps its settings in that folder and changes nothing in Windows.
+
+For 64-bit Windows 10 and 11, including Windows 11 on Arm laptops.
 
 ## Ideas or something not working?
 

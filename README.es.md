@@ -48,7 +48,9 @@ Además, cada PDF se abre en un espacio aislado de Windows, pensado para que un 
 2. Ábrelo y sigue los pasos. Si Windows muestra «Windows protegió su PC», pulsa **Más información** y luego **Ejecutar de todas formas**: lo hace con los programas nuevos que aún no llevan firma digital.
 3. Listo. Cuando haya una versión nueva, Folio te avisará.
 
-Para Windows 10 y 11 de 64 bits.
+**Versión portable:** si prefieres no instalar nada, descarga [Folio-Portable.zip](https://github.com/CuevasTech/FolioPDF/releases/latest/download/Folio-Portable.zip), descomprímelo en cualquier carpeta y abre `Folio.exe`. Guarda sus ajustes en esa carpeta y no cambia nada en Windows.
+
+Para Windows 10 y 11 de 64 bits, también en portátiles con Windows 11 ARM.
 
 ## ¿Ideas o algo que no va bien?
 
