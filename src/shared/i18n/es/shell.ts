@@ -118,6 +118,12 @@ export const shell = {
     failed: 'No se pudo actualizar Folio',
     tryLater: 'Inténtalo más tarde.'
   },
+  molino: {
+    title: 'Folio PDF ahora es Molino PDF',
+    text: 'La misma aplicación, con otro nombre, dentro de Molino, la suite ofimática libre. La primera vez que la abras, trae tus ajustes, tus firmas guardadas y tus modelos de IA. Folio no tendrá más versiones.',
+    download: 'Descargar Molino PDF',
+    notNow: 'Ahora no'
+  },
   recovery: {
     title: 'Recuperar documentos',
     discardAll: 'Descartar todos',

@@ -229,7 +229,7 @@ export interface FolioApi {
   }
   /** Información legal y de la aplicación (licencia, código fuente, componentes de terceros). */
   about: {
-    open(what: 'license' | 'notices' | 'source' | 'issues' | 'sponsors'): Promise<boolean>
+    open(what: 'license' | 'notices' | 'source' | 'issues' | 'sponsors' | 'molino'): Promise<boolean>
   }
   /** IA local: modelos (descarga y borrado) y su estado. Lo que hace la IA va por `engine` (métodos ai.*). */
   ai: {

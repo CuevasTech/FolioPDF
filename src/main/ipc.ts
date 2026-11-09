@@ -9,7 +9,7 @@ import type { DocDescriptor, EngineErrorInfo, Envelope, MutationResult, UpdateSt
 import type { AiDownloadProgress, AiKind, AiStatus } from '@shared/ai'
 import { AiError, type AiModels } from './aimodels'
 import { EngineClient, EngineError } from './engine'
-import { fmt, L } from './i18n'
+import { fmt, L, lang } from './i18n'
 import { log } from './log'
 import type { PrintService } from './print'
 import { isTrustedSender } from './security'
@@ -24,6 +24,9 @@ export const SOURCE_URL = 'https://github.com/CuevasTech/FolioPDF'
 
 /** Donativos voluntarios: dirección fija aquí, nunca recibida de la interfaz. */
 const SPONSORS_URL = 'https://github.com/sponsors/CuevasTech'
+
+/** Folio PDF pasa a ser Molino PDF: su página, en el idioma de Folio. Dirección fija, como las de arriba. */
+const MOLINO_URL = { es: 'https://molinosuite.org/pdf/', en: 'https://molinosuite.org/en/pdf/' }
 
 /** Licencia y avisos de terceros: junto a Folio.exe una vez instalado; en desarrollo, en el proyecto. */
 function legalFile(what: 'license' | 'notices'): string | null {
@@ -997,7 +1000,11 @@ export class Bridge {
 
     // ---- acerca de: licencia, componentes de terceros y código fuente (rutas y
     // dirección fijas, nunca recibidas de la interfaz)
-    this.handle('about:open', z.enum(['license', 'notices', 'source', 'issues', 'sponsors']), async (what) => {
+    this.handle('about:open', z.enum(['license', 'notices', 'source', 'issues', 'sponsors', 'molino']), async (what) => {
+      if (what === 'molino') {
+        await shell.openExternal(lang === 'en' ? MOLINO_URL.en : MOLINO_URL.es)
+        return true
+      }
       if (what === 'source' || what === 'issues' || what === 'sponsors') {
         await shell.openExternal(what === 'issues' ? `${SOURCE_URL}/issues` : what === 'sponsors' ? SPONSORS_URL : SOURCE_URL)
         return true

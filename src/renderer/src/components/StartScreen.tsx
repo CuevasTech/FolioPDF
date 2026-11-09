@@ -1,4 +1,4 @@
-import { FileCheck2, FileText, FolderOpen, Images, Merge, ScanLine, Search, X } from 'lucide-react'
+import { FileCheck2, FileText, FolderOpen, Images, Merge, ScanLine, Search, Wind, X } from 'lucide-react'
 import { type KeyboardEvent, type ReactNode, useMemo, useRef, useState } from 'react'
 import type { RecentFile } from '@shared/types'
 import { L, fmt } from '@/i18n'
@@ -25,6 +25,42 @@ function DefaultAppNotice() {
         </button>
         <button className="btn sm ghost" onClick={() => void updateSettings({ askDefaultPdf: false })}>
           {L.start.defaultApp.dontAsk}
+        </button>
+      </span>
+    </div>
+  )
+}
+
+/**
+ * Folio PDF pasa a ser Molino PDF (última versión de Folio): lleva a la página
+ * de Molino PDF (dirección fija en el proceso principal). Va en la pantalla de
+ * inicio para no tapar nunca un documento. «Ahora no» lo aparta hasta que se
+ * vuelva a abrir Folio.
+ */
+let molinoNoticeHidden = false
+function MolinoNotice() {
+  const [hidden, setHidden] = useState(molinoNoticeHidden)
+  if (hidden) return null
+  return (
+    <div className="notice start-notice molino-notice">
+      <Wind size={16} />
+      <span>
+        <b>{L.shell.molino.title}</b>
+        <br />
+        {L.shell.molino.text}
+      </span>
+      <span className="default-app-actions">
+        <button className="btn sm molino-go" onClick={() => void window.folio.about.open('molino')}>
+          {L.shell.molino.download}
+        </button>
+        <button
+          className="btn sm ghost"
+          onClick={() => {
+            molinoNoticeHidden = true
+            setHidden(true)
+          }}
+        >
+          {L.shell.molino.notNow}
         </button>
       </span>
     </div>
@@ -197,6 +233,7 @@ export function StartScreen() {
         <h1>Folio</h1>
         <p className="start-sub">{L.start.subtitle}</p>
 
+        <MolinoNotice />
         <DefaultAppNotice />
 
 

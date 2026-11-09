@@ -115,6 +115,12 @@ export const shell: typeof source = {
     failed: 'Couldn’t update Folio',
     tryLater: 'Try again later.'
   },
+  molino: {
+    title: 'Folio PDF is now Molino PDF',
+    text: 'The same app with a new name, part of Molino, the free office suite. The first time you open it, it brings your settings, saved signatures and AI models. Folio won’t get any more versions.',
+    download: 'Download Molino PDF',
+    notNow: 'Not now'
+  },
   recovery: {
     title: 'Recover documents',
     discardAll: 'Discard all',

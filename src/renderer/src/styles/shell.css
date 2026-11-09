@@ -952,6 +952,23 @@
   gap: 6px;
   flex: none;
 }
+/* Folio PDF pasa a ser Molino PDF (pantalla de inicio): como la propuesta de
+   arriba, con clases propias para no confundirse con ella. */
+.molino-notice {
+  align-items: center;
+  flex-wrap: wrap;
+}
+.molino-notice > span:first-of-type {
+  flex: 1 1 220px;
+}
+.btn.molino-go {
+  color: var(--accent-contrast);
+  background: var(--accent);
+  border-color: transparent;
+}
+.btn.molino-go:hover {
+  background: var(--accent-hover);
+}
 /* Acerca de Folio: la marca de la pantalla de inicio, en pequeño */
 .about-mark {
   flex: none;
