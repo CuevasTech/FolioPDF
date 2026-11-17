@@ -1,3 +1,6 @@
+> [!IMPORTANT]
+> **Folio PDF ahora es Molino PDF.** La misma aplicación, con otro nombre, dentro de [Molino](https://molinosuite.org), la suite ofimática gratis para Windows: documentos, hojas de cálculo, presentaciones y PDF. Descárgala gratis desde la Microsoft Store en **[molinosuite.org](https://molinosuite.org/descargar/)**: Molino Suite, con todas las apps, o solo Molino PDF. La primera vez que la abras, trae tus ajustes, tus firmas guardadas y tus modelos de IA de Folio. Folio no tendrá más versiones.
+
 <div align="center">
 
 [English](README.md) · **Español**
@@ -11,7 +14,7 @@
 Lee, rellena, firma, edita y organiza tus PDF en Windows.<br>
 Gratis, sin anuncios, sin cuentas y sin subir tus documentos a ningún sitio.
 
-### [⬇&nbsp; Descargar Folio para Windows](https://github.com/CuevasTech/FolioPDF/releases/latest)
+### [⬇&nbsp; Descarga Molino, la nueva casa de Folio](https://molinosuite.org/descargar/)
 
 <img src=".github/presupuesto.png" alt="Folio con un presupuesto que calcula solo los importes, el IVA y el total" width="860">
 

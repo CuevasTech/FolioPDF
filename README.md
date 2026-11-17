@@ -1,3 +1,6 @@
+> [!IMPORTANT]
+> **Folio PDF is now Molino PDF.** Same app, new name, now part of [Molino](https://molinosuite.org/en/), the free office suite for Windows: documents, spreadsheets, presentations and PDF. Get it free from the Microsoft Store at **[molinosuite.org](https://molinosuite.org/en/download/)**: Molino Suite, with all the apps, or Molino PDF on its own. The first time you open it, it brings over your settings, saved signatures and AI models from Folio. Folio will not get any more versions.
+
 <div align="center">
 
 **English** · [Español](README.es.md)
@@ -11,7 +14,7 @@
 Read, fill in, sign, edit and organize your PDFs on Windows.<br>
 Free, no ads, no accounts, and your documents are never uploaded anywhere.
 
-### [⬇&nbsp; Download Folio for Windows](https://github.com/CuevasTech/FolioPDF/releases/latest)
+### [⬇&nbsp; Get Molino, Folio’s new home](https://molinosuite.org/en/download/)
 
 <img src=".github/presupuesto.png" alt="Folio with a quote that calculates the amounts, the tax and the total by itself" width="860">
 
